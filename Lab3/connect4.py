@@ -9,6 +9,7 @@ class Connect4:
         self.game_over = False
         self.wins = None
         self.board = []
+        self.history = []
         for n_row in range(self.height):
             self.board.append(['_' for _ in range(self.width)])
 
@@ -25,6 +26,7 @@ class Connect4:
         while n_row + 1 < self.height and self.board[n_row+1][n_column] == '_':
             n_row += 1
         self.board[n_row][n_column] = self.who_moves
+        self.history.append((n_row, n_column, self.who_moves))
         self.game_over = self._check_game_over()
         self.who_moves = 'o' if self.who_moves == 'x' else 'x'
 
@@ -71,3 +73,13 @@ class Connect4:
         else:
             print('now moves:', self.who_moves)
             print('possible drops:', self.possible_drops())
+
+    def undo_last_move(self):
+        if self.history:
+            n_row, n_column, player = self.history.pop()
+            self.board[n_row][n_column] = '_'
+            self.game_over = False
+            self.wins = None
+            self.who_moves = player
+        else:
+            raise GameplayException('no moves to undo')
