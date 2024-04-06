@@ -1,12 +1,11 @@
-from exceptions import GameplayException
+from alphabetaagent import AlphaBetaAgent, advanced_static_eval, basic_static_eval
 from connect4 import Connect4
+from exceptions import GameplayException
 from randomagent import RandomAgent
-from minmaxagent import MinMaxAgent
-from alphabetaagent import AlphaBetaAgent
 
 connect4 = Connect4(width=7, height=6)
-agent1 = RandomAgent('o')
-agent2 = AlphaBetaAgent('x')
+agent1 = AlphaBetaAgent('o', heuristic_func=basic_static_eval)
+agent2 = AlphaBetaAgent('x', heuristic_func=advanced_static_eval)
 while not connect4.game_over:
     connect4.draw()
     try:
