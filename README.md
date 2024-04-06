@@ -4,4 +4,4 @@ Laboratory 1 task: Implement linear regression, which is an algorithm for determ
 
 Laboratory 2 task: Implement a genetic algorithm to solve the knapsack problem (my code is located in the file for_students.py).
 
-Laboratory 3 task: Implement the min-max and alpha-beta algorithms for tic-tac-toe game (not yet done).
+Laboratory 3 task: Implement the min-max and alpha-beta algorithms for connect4 game.
