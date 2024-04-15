@@ -1,6 +1,6 @@
 from collections import defaultdict
 import numpy as np
-from node_solution import Node
+from node import Node
 
 class DecisionTree:
     def __init__(self, params):
