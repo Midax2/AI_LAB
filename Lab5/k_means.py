@@ -27,7 +27,7 @@ def initialize_centroids_kmeans_pp(data, k):
 
 def assign_to_cluster(data, centroid):
     # TODO find the closest cluster for each data point
-    distances = np.linalg.norm(data[:, np.newaxis, :] - centroid, axis=2)
+    distances = np.sqrt(np.sum((data[:, np.newaxis, :] - centroid) ** 2, axis=2))
     return np.argmin(distances, axis=1)
 
 
