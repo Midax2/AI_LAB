@@ -9,13 +9,16 @@ from visualization_utils import inspect_data, plot_data, x_data_from_grid, visua
 def relu(logits):
     return np.maximum(logits, 0)
 
+
 def sigmoid(logits):
     return 1. / (1. + np.exp(-logits))
     # return np.exp(-np.logaddexp(0, -logits))     # to samo co wyżej, ale stabilne numerycznie
 
+
 def hardlim(logits):
     return (logits > 0).astype(np.float32)
     # return np.round(sigmoid(logits))             # to samo co wyżej, bez wykorzystywania porównań i rzutowań
+
 
 def linear(logits):
     return logits
@@ -27,8 +30,8 @@ def zad1_single_neuron(student_id):
     n_samples, n_features = x.shape
 
     # zakomentuj, jak juz nie potrzebujesz
-    inspect_data(x, y)
-    plot_data(x, y, plot_xy_range=[-1, 2])
+    # inspect_data(x, y)
+    # plot_data(x, y, plot_xy_range=[-1, 2])
 
     # model pojedynczego neuronu
     class SingleNeuron:
@@ -43,15 +46,17 @@ def zad1_single_neuron(student_id):
             :return: wyjście neuronu: np.array o rozmiarze [n_samples, 1]
             """
             # TODO (0.5 point)
-            logits = np.dot(x_data, self.W) + self.b
-            return self.f_act(logits)
+            return self.f_act(np.dot(x_data, self.W) + self.b)
 
     # neuron zainicjowany losowymi wagami
     model = SingleNeuron(n_in=n_features, f_act=hardlim)
 
     # TODO: ustawienie właściwych wag (0.5 point)
-    # model.W[:, 0] = [w1, w2]
-    # model.b[:] = [b1]
+    w1 = -4
+    w2 = 4
+    b1 = -1
+    model.W[:, 0] = [w1, w2]
+    model.b[:] = [b1]
 
     # działanie i ocena modelu
     y_pred = model.forward(x)
@@ -69,8 +74,8 @@ def zad2_two_layer_net(student_id):
     n_samples, n_features = x.shape
 
     # zakomentuj, jak juz nie potrzebujesz
-    inspect_data(x, y)
-    plot_data(x, y, plot_xy_range=[-1, 2])
+    # inspect_data(x, y)
+    # plot_data(x, y, plot_xy_range=[-1, 2])
 
     # warstwa czyli n_out pojedynczych, niezależnych neuronów operujących na tym samym wejściu\
     # (i-ty neuron ma swoje parametry w i-tej kolumnie macierzy W i na i-tej pozycji wektora b)
@@ -81,9 +86,10 @@ def zad2_two_layer_net(student_id):
             self.f_act = f_act
 
         def forward(self, x_data):
-            logits = np.dot(x_data, self.W) + self.b
-            return self.f_act(logits)
+            # TODO
+            return self.f_act(np.dot(x_data, self.W) + self.b)
 
+    # TODO: warstwy mozna składać w wiekszy model
     class SimpleTwoLayerNetwork:
         def __init__(self, n_in, n_hidden, n_out):
             self.hidden_layer = DenseLayer(n_in, n_hidden, relu)
@@ -96,12 +102,17 @@ def zad2_two_layer_net(student_id):
     # model zainicjowany losowymi wagami
     model = SimpleTwoLayerNetwork(n_in=n_features, n_hidden=2, n_out=1)
 
+    w12 = w22 = b1 = 1
+    w11 = w21 = b2 = (w12 * -1)
+
+    w_out1 = 6
+    b_out = -3
+
     # TODO: ustawienie właściwych wag
-    model = SimpleTwoLayerNetwork(n_in=n_features, n_hidden=2, n_out=1)
     model.hidden_layer.W[:, 0] = [w11, w21]  # wagi dla neuronu h1
     model.hidden_layer.W[:, 1] = [w12, w22]  # wagi dla neuronu h2
     model.hidden_layer.b[:] = [b1, b2]  # biasy dla neuronów h1 i h2
-    model.output_layer.W[:, 0] = [w_out1]  # wagi dla neuronu wyjściowego
+    model.output_layer.W[:, 0] = [w_out1, w_out1]  # wagi dla neuronu wyjściowego
     model.output_layer.b[:] = [b_out]  # bias dla neuronu wyjściowego
 
     # działanie i ocena modelu
@@ -114,7 +125,7 @@ def zad2_two_layer_net(student_id):
 if __name__ == '__main__':
     # visualize_activation_function(relu)
 
-    student_id = None         # Twój numer indeksu, np. 102247
+    student_id = 196751  # Twój numer indeksu, np. 102247
 
-    zad1_single_neuron(student_id)
-    # zad2_two_layer_net(student_id)
+    # zad1_single_neuron(student_id)
+    zad2_two_layer_net(student_id)

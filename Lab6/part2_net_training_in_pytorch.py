@@ -1,5 +1,5 @@
 import torch
-from torch import nn, optim
+from torch import nn
 import torch.nn.functional as F
 from data import ClassificationTwoSpiralsData
 from visualization_utils import inspect_data, plot_data, x_data_from_grid
@@ -28,40 +28,48 @@ class TorchMultiLayerNetwork(nn.Module):
 
 
 def evaluate_model(model, x, y):
-    with torch.no_grad():                       # przy ewaluacji nie ma potrzeby liczyć gradientów
+    with torch.no_grad():  # przy ewaluacji nie ma potrzeby liczyć gradientów
         y_pred = torch.round(model.forward(x))
         acc = (y == y_pred).sum().item() / y.shape[0]
     return acc
 
 
 def training(model, x, y):
-    # training hyperparameters
+    # training hiperparameters
     n_steps = 50000
-    learning_rate = 0.1
+    learning_rate = 0.1  # try different values
     minibatch_size = 32
 
     loss_fn = F.binary_cross_entropy
-    optimizer = optim.SGD(model.parameters(), lr=learning_rate)  # SGD optimizer
 
     history = []
     i_step = 0
 
+    # pętla uczenia gradientowego
     for _ in range(n_steps):
-        # Random mini-batch data selection
+
+        # TODO losowa paczka (mini-batch) danych o rozmiarze minibatch_size
+        #  (użyj torch.randint do wylosowania indeksów przykładów
         indices = torch.randint(0, x.size(0), (minibatch_size,))
         x_batch, y_batch = x[indices], y[indices]
 
-        # Forward pass and loss calculation
-        y_pred = model(x_batch)
-        loss = loss_fn(y_pred, y_batch)
+        # TODO forward pass modelu + policzenie wartości funkcji kosztu (użyj loss_fn zdefiniowanego wyżej)
+        new_y_batch = model.forward(x_batch)
+        loss = loss_fn(new_y_batch, y_batch)
 
-        # Backward pass
-        optimizer.zero_grad()  # Reset gradients
-        loss.backward()  # Compute gradients
-        optimizer.step()  # Update parameters
+        # backward pass
+        for p in model.parameters():
+            p.grad = None  # gradienty są akumulowane, więc przed następnym krokiem trzeba je zresetować (specyfika pyTorch)
+        loss.backward()  # autograd - policzenie gradientów metodą wstecznej propagacji - wypełnia pola .grad każdego
+        # z parametrów, który wpływa na wartość loss
 
-        # Track stats
-        history.append(loss.item())
+        # TODO update params
+        with torch.no_grad():
+            for p in model.parameters():
+                p -= learning_rate * p.grad
+
+        # track stats
+        history.append(loss.log10().item())
         i_step += 1
         if i_step % 1000 == 0:
             print(f'Step={i_step}, lr={learning_rate:.6f}, loss={loss.item():.6f}')
@@ -72,9 +80,10 @@ def training(model, x, y):
 def plot_history(history, smoothing_factor=0.99):
     plt.plot(history, c='b', alpha=0.5)
     if smoothing_factor is not None:
-        smoothed_history = []; pv = history[0]
+        smoothed_history = [];
+        pv = history[0]
         for v in history:
-            smoothed_history.append(smoothed := smoothing_factor*pv + (1.0-smoothing_factor)*v)
+            smoothed_history.append(smoothed := smoothing_factor * pv + (1.0 - smoothing_factor) * v)
             pv = smoothed
         plt.plot(smoothed_history, c='b')
     plt.xlabel('Training step')
@@ -84,7 +93,6 @@ def plot_history(history, smoothing_factor=0.99):
 
 def classify_spirals(student_id, do_data_inspection=True, do_model_inpection=True, do_model_training=True,
                      load_trained_model=False):
-
     model_path = "my_model.pkl"
 
     # generacja danych
@@ -118,11 +126,11 @@ def classify_spirals(student_id, do_data_inspection=True, do_model_inpection=Tru
         print(model)
         print("Aktualne wagi:")
         for name, param in model.named_parameters():
-            print(name, param.data)                 # początkowo wagi losowe
+            print(name, param.data)  # początkowo wagi losowe
         print("Aktualne gradienty:")
         for name, param in model.named_parameters():
-            print(name, param.requires_grad)        # czy dla tego parametru będzie potrzebne liczenie gradientu
-            print(name, param.grad)                 # aktualna wartość gradientu
+            print(name, param.requires_grad)  # czy dla tego parametru będzie potrzebne liczenie gradientu
+            print(name, param.grad)  # aktualna wartość gradientu
 
     print(f'Train accuracy: {evaluate_model(model, x_train, y_train) * 100:.02f}%')
     print(f'Test accuracy: {evaluate_model(model, x_test, y_test) * 100:.02f}%')
@@ -148,8 +156,7 @@ def classify_spirals(student_id, do_data_inspection=True, do_model_inpection=Tru
 
 
 if __name__ == '__main__':
-
-    student_id = 196751         # Twój numer indeksu, np. 102247
+    student_id = 196751  # Twój numer indeksu, np. 102247
     torch.manual_seed(student_id)
 
     classify_spirals(student_id,
