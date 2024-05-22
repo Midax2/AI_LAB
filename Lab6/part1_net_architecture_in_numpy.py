@@ -102,17 +102,22 @@ def zad2_two_layer_net(student_id):
     # model zainicjowany losowymi wagami
     model = SimpleTwoLayerNetwork(n_in=n_features, n_hidden=2, n_out=1)
 
-    w12 = w22 = b1 = 1
-    w11 = w21 = b2 = (w12 * -1)
+    b1 = 0.8
+    w11 = -0.5
+    w21 = -0.5
+    w12 = 0.5
+    w22 = 0.5
+    b2 = -0.3
 
-    w_out1 = 6
+    w_out1 = 5
+    w_out2 = 6
     b_out = -3
 
     # TODO: ustawienie właściwych wag
     model.hidden_layer.W[:, 0] = [w11, w21]  # wagi dla neuronu h1
     model.hidden_layer.W[:, 1] = [w12, w22]  # wagi dla neuronu h2
     model.hidden_layer.b[:] = [b1, b2]  # biasy dla neuronów h1 i h2
-    model.output_layer.W[:, 0] = [w_out1, w_out1]  # wagi dla neuronu wyjściowego
+    model.output_layer.W[:, 0] = [w_out1, w_out2]  # wagi dla neuronu wyjściowego
     model.output_layer.b[:] = [b_out]  # bias dla neuronu wyjściowego
 
     # działanie i ocena modelu
